@@ -24,6 +24,7 @@ from utils.memory_profile import MemConsumption
 from utils.hook_forward import StableDiffusionHook
 import utils.output_json
 import utils.output_file
+import uuid
 
 FW_UTILS = {'pt': utils.pt_utils, 'ov': utils.ov_utils}
 
@@ -599,6 +600,11 @@ def get_argprser():
     parser.add_argument('-od', '--output_dir', help='Save the input text and generated text, images to files')
     utils.model_utils.add_stateful_model_arguments(parser)
     parser.add_argument("--genai", action="store_true")
+    parser.add_argument(
+        '-precision_hint',
+        '--inference_precision_hint',
+        help='INFERENCE_PRECISION_HINT f32 f16 bf16',
+        required=False,)
 
     return parser.parse_args()
 
@@ -650,6 +656,7 @@ def main():
                     iter_data_list,
                     pretrain_time,
                     model_precision,
+                    args.inference_precision_hint
                 )
             if args.report_json is not None:
                 utils.output_json.write_result(

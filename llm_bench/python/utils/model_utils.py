@@ -90,7 +90,7 @@ def get_image_param_from_prompt_file(args):
     return image_param_list
 
 
-def set_default_param_for_ov_config(ov_config):
+def set_default_param_for_ov_config(ov_config,args):
     if 'PERFORMANCE_HINT' not in ov_config:
         ov_config['PERFORMANCE_HINT'] = 'LATENCY'
     # With this PR https://github.com/huggingface/optimum-intel/pull/362, we are able to disable model cache
@@ -99,7 +99,8 @@ def set_default_param_for_ov_config(ov_config):
     # OpenVINO self have default value 2 for nstreams on machine with 2 nodes. Reducing memory consumed via changing nstreams to 1.
     if 'NUM_STREAMS' not in ov_config:
         ov_config['NUM_STREAMS'] = '1'
-
+    if 'INFERENCE_PRECISION_HINT' not in ov_config and args.inference_precision_hint:
+        ov_config['INFERENCE_PRECISION_HINT'] = args.inference_precision_hint
 
 def add_stateful_model_arguments(parser: argparse.ArgumentParser):
     parser.add_argument(
@@ -152,8 +153,8 @@ def analyze_args(args):
         if type(config) is dict and len(config) > 0:
             model_args['config'] = config
     if model_framework == 'ov':
-        set_default_param_for_ov_config(model_args['config'])
-        log.info(f"OV Config={model_args['config']}")
+        set_default_param_for_ov_config(model_args['config'],args)
+        log.info(f"ov_config={model_args['config']}")
     elif model_framework == 'pt':
         log.info(f"PT Config={model_args['config']}")
     model_args['model_type'] = get_model_type(model_name, use_case, model_framework)
