@@ -24,13 +24,14 @@ from llm_bench_utils.memory_profile import MemConsumption
 from llm_bench_utils.hook_forward import StableDiffusionHook
 import llm_bench_utils.output_json
 import llm_bench_utils.output_file
+import uuid
 
 FW_UTILS = {'pt': llm_bench_utils.pt_utils, 'ov': llm_bench_utils.ov_utils}
 
-DEFAULT_INFERENCE_STEPS = 20
+DEFAULT_INFERENCE_STEPS = 50
 LCM_DEFAULT_INFERENCE_STEPS = 4
-DEFAULT_IMAGE_WIDTH = 512
-DEFAULT_IMAGE_HEIGHT = 512
+DEFAULT_IMAGE_WIDTH = 768
+DEFAULT_IMAGE_HEIGHT = 768
 DEFAULT_SUPER_RESOLUTION_STEPS = 50
 DEFAULT_SUPER_RESOLUTION_WIDTH = 128
 DEFAULT_SUPER_RESOLUTION_HEIGHT = 128
@@ -820,6 +821,11 @@ def get_argprser():
         action='store_true',
         help='Stop the generation even output token size does not achieve infer_count or max token size ({DEFAULT_OUTPUT_TOKEN_SIZE}}).'
     )
+    parser.add_argument(
+        '-precision_hint',
+        '--inference_precision_hint',
+        help='INFERENCE_PRECISION_HINT f32 f16 bf16',
+        required=False,)
 
     return parser.parse_args()
 
@@ -872,6 +878,7 @@ def main():
                     iter_data_list,
                     pretrain_time,
                     model_precision,
+                    args.inference_precision_hint
                 )
             if args.report_json is not None:
                 llm_bench_utils.output_json.write_result(

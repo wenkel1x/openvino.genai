@@ -188,4 +188,7 @@ def print_average(iter_data_list, prompt_idx_list, batch_size, is_text_gen=False
         out_str = '[Total] Iterations: {}'.format(total_iters)
         for prompt_key in prompt_dict:
             out_str += prompt_dict[prompt_key]
+        if not is_text_gen and total_generation_time > 0 :
+            avg_per_iter_time = total_generation_time / total_iters
+            out_str += '\n[ INFO ] [Average] Iteration time: {:.2f}s'.format(avg_per_iter_time)
         log.info(out_str)
