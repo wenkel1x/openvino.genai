@@ -97,11 +97,12 @@ def read_wav(filepath, sampling_rate):
     return raw_speech[0]
 
 
-def set_default_param_for_ov_config(ov_config):
+def set_default_param_for_ov_config(ov_config,args):
     # With this PR https://github.com/huggingface/optimum-intel/pull/362, we are able to disable model cache
     if 'CACHE_DIR' not in ov_config:
         ov_config['CACHE_DIR'] = ''
-
+    if 'INFERENCE_PRECISION_HINT' not in ov_config and args.inference_precision_hint:
+        ov_config['INFERENCE_PRECISION_HINT'] = args.inference_precision_hint
 
 def analyze_args(args):
     model_args = {}
@@ -180,7 +181,7 @@ def analyze_args(args):
         if type(config) is dict and len(config) > 0:
             model_args['config'] = config
     if model_framework == 'ov':
-        set_default_param_for_ov_config(model_args['config'])
+        set_default_param_for_ov_config(model_args['config'],args)
         log.info(f"OV Config={model_args['config']}")
     elif model_framework == 'pt':
         log.info(f"PT Config={model_args['config']}")

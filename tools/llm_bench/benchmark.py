@@ -184,6 +184,7 @@ def get_argprser():
         '--strength', type=float, default=None,
         help='Applicable for Image to imaage/Inpainting pipelines. Indicates extent to transform the reference `image`. Must be between 0 and 1.')
     parser.add_argument("--disable_prompt_permutation", action="store_true", help="Disable modification prompt from run to run for avoid prefix caching")
+    parser.add_argument('-precision_hint', '--inference_precision_hint',required=False,help='INFERENCE_PRECISION_HINT f32 f16 bf16')
     return parser.parse_args()
 
 
@@ -282,7 +283,8 @@ def main():
                     iter_data_list,
                     pretrain_time,
                     model_precision,
-                    iter_timestamp
+                    iter_timestamp,
+                    args.inference_precision_hint
                 )
             if args.report_json is not None:
                 llm_bench_utils.output_json.write_result(

@@ -21,10 +21,10 @@ import numpy as np
 
 FW_UTILS = {'pt': llm_bench_utils.pt_utils, 'ov': llm_bench_utils.ov_utils}
 
-DEFAULT_INFERENCE_STEPS = 20
+DEFAULT_INFERENCE_STEPS = 50
 LCM_DEFAULT_INFERENCE_STEPS = 4
-DEFAULT_IMAGE_WIDTH = 512
-DEFAULT_IMAGE_HEIGHT = 512
+DEFAULT_IMAGE_WIDTH = 768
+DEFAULT_IMAGE_HEIGHT = 768
 
 stable_diffusion_hook = StableDiffusionHook()
 

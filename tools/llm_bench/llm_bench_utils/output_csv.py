@@ -6,6 +6,7 @@ import numpy as np
 import copy
 from pathlib import Path
 import llm_bench_utils.output_json as output_json
+import os
 
 
 def output_comments(result, use_case, writer):
@@ -130,7 +131,7 @@ def gen_data_to_csv(result, iter_data, pretrain_time, iter_timestamp):
     result['start'], result['end'] = output_json.get_timestamp(iter_data['iteration'], iter_data['prompt_idx'], iter_timestamp)
 
 
-def write_result(report_file, model, framework, device, model_args, iter_data_list, pretrain_time, model_precision, iter_timestamp):
+def write_result(report_file, model, framework, device, model_args, iter_data_list, pretrain_time, model_precision,iter_timestamp,inference_precision):
     header = [
         'iteration',
         'model',
@@ -145,6 +146,7 @@ def write_result(report_file, model, framework, device, model_args, iter_data_li
         '1st_latency(ms)',
         '2nd_avg_latency(ms)',
         'precision',
+        'inference_precision',
         'max_rss_mem(MB)',
         'max_sys_mem(MB)',
         'prompt_idx',
@@ -160,6 +162,9 @@ def write_result(report_file, model, framework, device, model_args, iter_data_li
     ]
     out_file = Path(report_file)
 
+    result_file = Path(os.path.dirname(out_file) + "/../llm_summary_perf_avg_l.csv")
+    result_headers = not result_file.exists()
+
     if len(iter_data_list) > 0:
         with open(out_file, 'w+', newline='') as f:
             writer = csv.DictWriter(f, header)
@@ -170,6 +175,7 @@ def write_result(report_file, model, framework, device, model_args, iter_data_li
             result['device'] = device
             result['pretrain_time(s)'] = round(pretrain_time, 5)
             result['precision'] = model_precision
+            result['inference_precision'] = inference_precision
             result['num_beams'] = model_args['num_beams']
             result['batch_size'] = model_args['batch_size']
             for i in range(len(iter_data_list)):
@@ -184,4 +190,11 @@ def write_result(report_file, model, framework, device, model_args, iter_data_li
                 for data in res_data[key]:
                     gen_data_to_csv(result, data, '', iter_timestamp)
                     writer.writerow(result)
+            tmp_result = result.copy()
             output_comments(result, model_args['use_case'], writer)
+
+        with result_file.open('a+') as r:
+            writer = csv.DictWriter(r, header)
+            if result_headers:
+                writer.writeheader()
+            writer.writerow(tmp_result)
